@@ -13,7 +13,7 @@ interface LiveTitle {
 }
 
 function slugFromUrl(url?: string): string | undefined {
-  const m = url?.match(/\/komik\/([^/]+)/);
+  const m = url?.match(/\/(?:komik|manga)\/([^/]+)/);
   return m ? m[1] : undefined;
 }
 
