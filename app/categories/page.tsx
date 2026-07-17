@@ -6,7 +6,7 @@ import { MangaCard } from "@/components/manga/MangaCard";
 import { ShimmerBox } from "@/components/ui/ShimmerBox";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { GENRES } from "@/lib/genres";
-import { fetchGenreManga } from "@/lib/api";
+import { fetchGenreMangaPaged } from "@/lib/api";
 import { getMockMangas } from "@/lib/mock-data";
 import type { Manga } from "@/types/manga";
 import { cn } from "@/lib/utils";
@@ -20,79 +20,52 @@ const TYPES = [
 ];
 
 export default function CategoriesPage() {
-  const [allMangas, setAllMangas] = useState<Manga[]>([]);
   const [filteredMangas, setFilteredMangas] = useState<Manga[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedGenre, setSelectedGenre] = useState<string>(""); // Slug (e.g. "action", "")
   const [selectedGenreLabel, setSelectedGenreLabel] = useState<string>("Semua");
   const [selectedType, setSelectedType] = useState<string>(""); // "", "Manga", "Manhwa", "Manhua"
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const [isPending, startTransition] = useTransition();
 
   const itemsPerPage = 21; // 3 rows of 7 cards
 
-  // Fetch initial mangas (used for offline client-side filtering fallback)
+  // Fetch paginated categories data whenever genre, type, or page changes
   useEffect(() => {
-    async function loadInitialData() {
+    async function loadData() {
       setLoading(true);
       try {
-        const data = await fetchGenreManga("all");
-        if (data && data.length > 0) {
-          setAllMangas(data);
+        const res = await fetchGenreMangaPaged(
+          selectedGenre || "all",
+          selectedType || undefined,
+          currentPage,
+          itemsPerPage
+        );
+        if (res && res.data.length > 0) {
+          setFilteredMangas(res.data);
+          setTotalItems(res.total);
+          setTotalPages(res.totalPages);
         } else {
           // Generate a large set of mock mangas if API returns empty
-          setAllMangas(getMockMangas(120));
+          const mock = getMockMangas(120);
+          setFilteredMangas(mock.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
+          setTotalItems(mock.length);
+          setTotalPages(Math.ceil(mock.length / itemsPerPage));
         }
       } catch (err) {
-        console.error("Error loading initial categories data:", err);
-        setAllMangas(getMockMangas(120));
+        console.error("Error loading categories data:", err);
+        const mock = getMockMangas(120);
+        setFilteredMangas(mock.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
+        setTotalItems(mock.length);
+        setTotalPages(Math.ceil(mock.length / itemsPerPage));
       } finally {
         setLoading(false);
       }
     }
-    loadInitialData();
-  }, []);
-
-  // Update filtered list whenever selection changes
-  useEffect(() => {
-    async function updateFiltered() {
-      setLoading(true);
-      try {
-        const data = await fetchGenreManga(selectedGenre || "all", selectedType || undefined);
-        if (data && data.length > 0) {
-          setFilteredMangas(data);
-        } else {
-          // Fallback client-side filter
-          const localFiltered = allMangas.filter((m) => {
-            const matchesGenre = !selectedGenre || 
-              m.genre?.toLowerCase() === selectedGenre.toLowerCase() || 
-              m.genre?.toLowerCase() === selectedGenreLabel.toLowerCase();
-            const matchesType = !selectedType || 
-              m.type?.toLowerCase() === selectedType.toLowerCase();
-            return matchesGenre && matchesType;
-          });
-          setFilteredMangas(localFiltered);
-        }
-      } catch (err) {
-        console.error("Error fetching filtered category results:", err);
-        const localFiltered = allMangas.filter((m) => {
-          const matchesGenre = !selectedGenre || 
-            m.genre?.toLowerCase() === selectedGenre.toLowerCase() || 
-            m.genre?.toLowerCase() === selectedGenreLabel.toLowerCase();
-          const matchesType = !selectedType || 
-            m.type?.toLowerCase() === selectedType.toLowerCase();
-          return matchesGenre && matchesType;
-        });
-        setFilteredMangas(localFiltered);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (allMangas.length > 0) {
-      updateFiltered();
-    }
-  }, [selectedGenre, selectedType, allMangas, selectedGenreLabel]);
+    loadData();
+  }, [selectedGenre, selectedType, currentPage]);
 
   // Reset page to 1 when filters change
   const handleGenreChange = (label: string, slug: string) => {
@@ -107,15 +80,10 @@ export default function CategoriesPage() {
   };
 
   // Pagination calculations
-  const totalItems = filteredMangas.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-  
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const endIndex = startIndex + filteredMangas.length;
   
-  const currentMangas = useMemo(() => {
-    return filteredMangas.slice(startIndex, endIndex);
-  }, [filteredMangas, startIndex, endIndex]);
+  const currentMangas = filteredMangas;
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {

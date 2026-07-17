@@ -288,6 +288,82 @@ export const fetchChapterPages = cache(async (
   }
 });
 
+export const fetchGenreMangaPaged = cache(async (
+  slug: string,
+  type?: string,
+  page = 1,
+  limit = 21
+): Promise<{ data: Manga[]; total: number; totalPages: number }> => {
+  try {
+    const params = new URLSearchParams();
+    if (slug && slug !== "all") {
+      params.append("genre", slug);
+    }
+    if (type) {
+      params.append("type", type);
+    }
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+
+    const res = await fetchWithTimeout(`${API_BASE}/api/manga?${params.toString()}`, {
+      cache: "no-store",
+      timeout: 8000,
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const list = json.data || [];
+      const data = list.map((m: any) => ({
+        id: m.id,
+        title: m.title,
+        chapter: 0,
+        badge: null,
+        coverUrl: m.coverUrl || m.cover_url || undefined,
+        genre: m.genres?.[0] || undefined,
+        slug: getSlug(m),
+        author: m.author || undefined,
+        views: m.views ? String(m.views) : undefined,
+        type: m.type || undefined,
+      }));
+      return {
+        data,
+        total: json.pagination?.total ?? data.length,
+        totalPages: json.pagination?.totalPages ?? 1,
+      };
+    }
+  } catch (err) {
+    console.error("fetchGenreMangaPaged DB error:", err);
+  }
+
+  try {
+    const params = new URLSearchParams();
+    if (slug) params.append("slug", slug);
+    if (type) params.append("type", type);
+    params.append("page", page.toString());
+
+    const res = await fetchWithTimeout(
+      `${API_BASE}/api/live/genre?${params.toString()}`,
+      { cache: "no-store", timeout: 8000 },
+    );
+    if (!res.ok) return { data: [], total: 0, totalPages: 1 };
+    const json = (await res.json()) as { manga?: LiveTitle[] };
+    const data = (json.manga ?? []).map((t, i) => {
+      const manga = toManga(t, i);
+      if (!manga.genre && slug !== "all") {
+        manga.genre = slug;
+      }
+      return manga;
+    });
+    const hasNext = data.length >= 20;
+    return {
+      data,
+      total: hasNext ? (page + 1) * limit : page * limit,
+      totalPages: hasNext ? page + 10 : page,
+    };
+  } catch {
+    return { data: [], total: 0, totalPages: 1 };
+  }
+});
+
 export const fetchGenreManga = cache(async (slug: string, type?: string): Promise<Manga[]> => {
   try {
     const params = new URLSearchParams();
