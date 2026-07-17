@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { fetchChapterPages } from "@/lib/api";
+import { fetchChapterPages, fetchMangaDetail, fetchGenreManga } from "@/lib/api";
 import { ReaderNavbar } from "@/components/layout/ReaderNavbar";
+import { ChapterNav } from "@/components/manga/ChapterNav";
+import { RecommendedComics } from "@/components/manga/RecommendedComics";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +12,29 @@ export default async function ReaderPage({
   params: Promise<{ id: string; chapter: string }>;
 }) {
   const { id, chapter } = await params;
-  const pages = await fetchChapterPages(id, chapter);
+
+  const [pages, detail] = await Promise.all([
+    fetchChapterPages(id, chapter),
+    fetchMangaDetail(id),
+  ]);
+
+  const chapters = detail?.chapters ?? [];
+  const sorted = [...chapters].sort((a, b) => a.chapterNumber - b.chapterNumber);
+  const currentIndex = sorted.findIndex(
+    (c) => c.slug === chapter || String(c.chapterNumber) === chapter
+  );
+
+  const prevChapter = currentIndex > 0 ? sorted[currentIndex - 1] : null;
+  const nextChapter =
+    currentIndex !== -1 && currentIndex < sorted.length - 1
+      ? sorted[currentIndex + 1]
+      : null;
+
+  const recommended = detail
+    ? (await fetchGenreManga(detail.genres?.[0] ?? "all"))
+        .filter((m) => m.slug !== id && String(m.id) !== id)
+        .slice(0, 12)
+    : [];
 
   return (
     <div className="min-h-screen bg-ink text-white font-sans">
@@ -41,6 +65,19 @@ export default async function ReaderPage({
           </div>
         )}
       </main>
+
+      {/* Prev / Next chapter */}
+      {/* Prev / Next chapter */}
+      <ChapterNav
+        id={id}
+        prevChapter={prevChapter}
+        nextChapter={nextChapter}
+      />
+
+      {/* Recommendations */}
+      {recommended.length > 0 && (
+        <RecommendedComics title="Rekomendasi Komik Lain" items={recommended} />
+      )}
     </div>
   );
 }
