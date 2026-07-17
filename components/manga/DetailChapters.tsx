@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowUpDown, Grid, Search } from "lucide-react";
+import { ArrowUpDown, Grid, Search, Check } from "lucide-react";
 import type { ChapterInfo } from "@/types/manga";
+import { getReadSlugs } from "@/lib/read-history";
 
 interface DetailChaptersProps {
   chapters: ChapterInfo[];
@@ -13,6 +14,12 @@ interface DetailChaptersProps {
 export function DetailChapters({ chapters, comicId }: DetailChaptersProps) {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [searchQuery, setSearchQuery] = useState("");
+  const [readSlugs, setReadSlugs] = useState<string[]>([]);
+
+  // Read history cuma ada di client (localStorage), jadi diambil setelah mount
+  useEffect(() => {
+    setReadSlugs(getReadSlugs(comicId));
+  }, [comicId]);
 
   const filteredChapters = chapters.filter((ch) =>
     `Ch. ${ch.chapterNumber} ${ch.title || ""}`
@@ -69,20 +76,46 @@ export function DetailChapters({ chapters, comicId }: DetailChaptersProps) {
 
       {/* Chapters Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        {sortedChapters.map((ch, idx) => (
-          <Link
-            key={`${ch.slug}-${idx}`}
-            href={`/comic/${comicId}/${ch.slug}`}
-            className="group flex flex-col p-3 bg-white dark:bg-[#1a1b1d] border border-neutral-200 dark:border-[#2a2b2d] hover:border-[#ff6740] dark:hover:border-[#ff6740] rounded-xl transition-all duration-200 hover:scale-[1.01] hover:shadow-md text-left"
-          >
-            <span className="font-extrabold text-sm text-neutral-900 dark:text-white leading-tight group-hover:text-[#ff6740] transition-colors">
-              Ch. {ch.chapterNumber}
-            </span>
-            <span className="text-[10px] text-neutral-450 dark:text-neutral-500 mt-1 block truncate">
-              {ch.title || `Chapter ${ch.chapterNumber}`}
-            </span>
-          </Link>
-        ))}
+        {sortedChapters.map((ch, idx) => {
+          const isRead = readSlugs.includes(ch.slug);
+
+          return (
+            <Link
+              key={`${ch.slug}-${idx}`}
+              href={`/comic/${comicId}/${ch.slug}`}
+              className={`group relative flex flex-col p-3 border rounded-xl transition-all duration-200 hover:scale-[1.01] hover:shadow-md text-left ${
+                isRead
+                  ? "bg-neutral-100 dark:bg-neutral-900/60 border-neutral-200 dark:border-neutral-800"
+                  : "bg-white dark:bg-[#1a1b1d] border-neutral-200 dark:border-[#2a2b2d] hover:border-[#ff6740] dark:hover:border-[#ff6740]"
+              }`}
+            >
+              {isRead && (
+                <span className="absolute top-2 right-2 flex items-center justify-center w-4 h-4 rounded-full bg-[#ff6740]/15 text-[#ff6740]">
+                  <Check size={10} strokeWidth={3} />
+                </span>
+              )}
+
+              <span
+                className={`font-extrabold text-sm leading-tight transition-colors ${
+                  isRead
+                    ? "text-neutral-400 dark:text-neutral-500"
+                    : "text-neutral-900 dark:text-white group-hover:text-[#ff6740]"
+                }`}
+              >
+                Ch. {ch.chapterNumber}
+              </span>
+              <span
+                className={`text-[10px] mt-1 block truncate ${
+                  isRead
+                    ? "text-neutral-400 dark:text-neutral-600"
+                    : "text-neutral-450 dark:text-neutral-500"
+                }`}
+              >
+                {ch.title || `Chapter ${ch.chapterNumber}`}
+              </span>
+            </Link>
+          );
+        })}
 
         {sortedChapters.length === 0 && (
           <div className="col-span-full py-16 text-center text-sm font-semibold text-neutral-500 dark:text-neutral-400">

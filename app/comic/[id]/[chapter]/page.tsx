@@ -3,6 +3,7 @@ import { fetchChapterPages, fetchMangaDetail, fetchGenreManga } from "@/lib/api"
 import { ReaderNavbar } from "@/components/layout/ReaderNavbar";
 import { ChapterNav } from "@/components/manga/ChapterNav";
 import { RecommendedComics } from "@/components/manga/RecommendedComics";
+import { MarkAsRead } from "@/components/manga/MarkAsRead";
 
 export const dynamic = "force-dynamic";
 
@@ -32,12 +33,22 @@ export default async function ReaderPage({
 
   const recommended = detail
     ? (await fetchGenreManga(detail.genres?.[0] ?? "all"))
-        .filter((m) => m.slug !== id && String(m.id) !== id)
-        .slice(0, 12)
+      .filter((m) => m.slug !== id && String(m.id) !== id)
+      .slice(0, 12)
     : [];
 
   return (
     <div className="min-h-screen bg-ink text-white font-sans">
+
+      <MarkAsRead
+        comicId={id}
+        slug={detail?.slug ?? id}
+        title={detail?.title ?? id}
+        coverUrl={detail?.coverUrl}
+        type={detail?.type}
+        chapterNumber={sorted[currentIndex]?.chapterNumber ?? 0}
+        chapterSlug={chapter}
+      />
       {/* Reader header */}
       <ReaderNavbar id={id} chapter={chapter} />
 

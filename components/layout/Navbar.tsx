@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { label: "KATEGORI", href: "/categories" },
   { label: "PERINGKAT", href: "/rankings" },
   { label: "KANVAS", href: "/canvas" },
+  { label: "HISTORI", href: "/history" },
 ];
 
 function MascotLogo() {
