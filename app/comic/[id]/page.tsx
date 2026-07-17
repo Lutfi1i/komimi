@@ -61,16 +61,16 @@ export default async function ComicDetailPage({
       <div className="relative w-full overflow-hidden border-b border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-950 pt-10 pb-12 md:py-16">
         {/* Banner Graphic background */}
         <div 
-          className="absolute inset-0 bg-cover bg-center scale-105 blur-2xl opacity-15 dark:opacity-20 pointer-events-none"
-          style={{ backgroundImage: coverUrl ? `url(${coverUrl})` : 'none' }}
+          className="absolute inset-0 bg-cover bg-center scale-105 blur-3xl opacity-35 dark:opacity-45 pointer-events-none"
+          style={{ backgroundImage: coverUrl ? `url("${coverUrl}")` : 'none' }}
         />
         
         {/* Dark/Light overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-neutral-200/50 via-neutral-100/90 to-neutral-50 dark:from-neutral-950/50 via-[#0f0f10]/95 to-[#0f0f10]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-neutral-50/70 to-neutral-50 dark:from-transparent dark:via-[#0f0f10]/80 dark:to-[#0f0f10]" />
 
         <div className="relative max-w-7xl mx-auto px-5 md:px-8 z-10 flex flex-col md:flex-row gap-8 items-start md:items-end">
           {/* Cover image card */}
-          <div className="relative w-44 md:w-56 shrink-0 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border-4 border-white dark:border-neutral-800 bg-neutral-200 dark:bg-neutral-800 self-center md:self-auto">
+          <div className="relative w-44 md:w-56 shrink-0 aspect-[3/4] overflow-hidden shadow-2xl bg-neutral-200 dark:bg-neutral-800 self-center md:self-auto">
             {coverUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={coverUrl} alt={title} className="w-full h-full object-cover" />

@@ -91,7 +91,7 @@ export function ReaderNavbar({ id, chapter }: ReaderNavbarProps) {
           <ArrowLeft size={14} /> 
           <span className="truncate max-w-[120px] sm:max-w-xs">{chapter}</span>
           {totalPages > 0 && (
-            <span className="text-[10px] bg-neutral-900 text-gold px-1.5 py-0.5 rounded-full font-mono ml-1">
+            <span className="text-[10px] bg-neutral-900 text-white px-1.5 py-0.5 rounded-full font-mono ml-1">
               {currentPage}/{totalPages}
             </span>
           )}
