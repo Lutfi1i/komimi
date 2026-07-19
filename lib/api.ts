@@ -162,6 +162,26 @@ export const fetchHomeData = cache(async (): Promise<HomeData | null> => {
 });
 
 export const fetchMangaDetail = cache(async (slug: string): Promise<MangaDetail | null> => {
+  if (!/^\d+$/.test(slug)) {
+    try {
+      const searchTerm = slug.replace(/-/g, " ");
+      const searchRes = await fetchWithTimeout(
+        `${API_BASE}/api/manga?search=${encodeURIComponent(searchTerm)}`,
+        { cache: "no-store", timeout: 8000 }
+      );
+      if (searchRes.ok) {
+        const searchJson = await searchRes.json();
+        const results: any[] = searchJson.data || [];
+        const matchedManga = results.find((m) => getSlug(m) === slug);
+        if (matchedManga) {
+          return fetchMangaDetail(String(matchedManga.id));
+        }
+      }
+    } catch (err) {
+      console.error("fetchMangaDetail slug search error:", err);
+    }
+  }
+
   if (/^\d+$/.test(slug)) {
     try {
       const mangaRes = await fetchWithTimeout(`${API_BASE}/api/manga/${slug}`, {
@@ -252,6 +272,26 @@ export const fetchChapterPages = cache(async (
   mangaSlug: string,
   chapterSlug: string,
 ): Promise<string[] | null> => {
+  if (!/^\d+$/.test(mangaSlug)) {
+    try {
+      const searchTerm = mangaSlug.replace(/-/g, " ");
+      const searchRes = await fetchWithTimeout(
+        `${API_BASE}/api/manga?search=${encodeURIComponent(searchTerm)}`,
+        { cache: "no-store", timeout: 8000 }
+      );
+      if (searchRes.ok) {
+        const searchJson = await searchRes.json();
+        const results: any[] = searchJson.data || [];
+        const matchedManga = results.find((m) => getSlug(m) === mangaSlug);
+        if (matchedManga) {
+          return fetchChapterPages(String(matchedManga.id), chapterSlug);
+        }
+      }
+    } catch (err) {
+      console.error("fetchChapterPages slug search error:", err);
+    }
+  }
+
   if (/^\d+$/.test(mangaSlug)) {
     try {
       const match = chapterSlug.match(/chapter-([\d.]+)/) || chapterSlug.match(/^([\d.]+)$/);
