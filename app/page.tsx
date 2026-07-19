@@ -12,6 +12,7 @@ import { TrendingSeriesSkeleton } from "@/components/manga/TrendingSeriesSkeleto
 import { Suspense } from "react";
 import { fetchHomeData } from "@/lib/api";
 import { getMockMangas, getRankedMangas, getRecentMangas } from "@/lib/mock-data";
+import { PersonalizedRecommendations } from "@/components/manga/PersonalizedRecommendations";
 
 export const dynamic = "force-dynamic";
 
@@ -42,9 +43,8 @@ async function UpdateRowContent() {
 
 async function MangaGridContent() {
   const data = await fetchHomeData();
-  const popularMangas = data?.popular ?? getMockMangas(21);
   const recommendedMangas = data?.recommended ?? getMockMangas(14, 40);
-  return <MangaGrid title="Rekomendasi Untukmu" mangas={recommendedMangas} />;
+  return <PersonalizedRecommendations fallbackMangas={recommendedMangas} />;
 }
 
 export default function Home() {

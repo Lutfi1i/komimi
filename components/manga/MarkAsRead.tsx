@@ -9,6 +9,7 @@ interface MarkAsReadProps {
   title: string;
   coverUrl?: string;
   type?: string;
+  genres?: string[];
   chapterNumber: number;
   chapterSlug: string;
 }
@@ -19,12 +20,13 @@ export function MarkAsRead({
   title,
   coverUrl,
   type,
+  genres,
   chapterNumber,
   chapterSlug,
 }: MarkAsReadProps) {
   useEffect(() => {
-    markChapterRead({ comicId, slug, title, coverUrl, type, chapterNumber, chapterSlug });
-  }, [comicId, slug, title, coverUrl, type, chapterNumber, chapterSlug]);
+    markChapterRead({ comicId, slug, title, coverUrl, type, genres, chapterNumber, chapterSlug });
+  }, [comicId, slug, title, coverUrl, type, genres, chapterNumber, chapterSlug]);
 
   return null;
 }

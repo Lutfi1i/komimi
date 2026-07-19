@@ -151,6 +151,7 @@ export default async function ComicDetailPage({
                   coverUrl={coverUrl}
                   type={type}
                   genre={genres[0]}
+                  genres={genres}
                 />
               </div>
             )}

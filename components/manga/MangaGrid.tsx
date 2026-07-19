@@ -35,13 +35,16 @@ interface MangaGridProps {
   title: string;
   mangas: Manga[];
   showGenrePills?: boolean;
+  loading?: boolean;
 }
 
-export function MangaGrid({ title, mangas, showGenrePills = false }: MangaGridProps) {
+export function MangaGrid({ title, mangas, showGenrePills = false, loading: externalLoading = false }: MangaGridProps) {
   const [activeGenre, setActiveGenre] = useState("Semua");
   const [results, setResults] = useState<Manga[] | null>(null);
   const [loading, setLoading] = useState(false);
   const reqRef = useRef(0);
+
+  const isLoading = loading || externalLoading;
 
   // Pill kategori: "Semua" menampilkan daftar awal, genre lain mengambil
   // langsung dari backend live (/api/live/genre) 
@@ -87,7 +90,7 @@ export function MangaGrid({ title, mangas, showGenrePills = false }: MangaGridPr
 
       <SectionHeader title={title} />
 
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 md:gap-4">
           {Array.from({ length: 14 }).map((_, i) => (
             <div key={i} className="flex flex-col gap-2">

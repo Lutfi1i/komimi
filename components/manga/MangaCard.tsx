@@ -80,6 +80,7 @@ export function MangaCard({ manga, style }: MangaCardProps) {
       coverUrl: manga.coverUrl,
       type: manga.type,
       genre: manga.genre,
+      genres: manga.genre ? [manga.genre] : [],
     });
     setBookmarked(next);
   };

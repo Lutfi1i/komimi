@@ -5,6 +5,7 @@ export interface BookmarkEntry {
   coverUrl?: string;
   type?: string;
   genre?: string;
+  genres?: string[];
   bookmarkedAt: number;
 }
 

@@ -46,6 +46,7 @@ export default async function ReaderPage({
         title={detail?.title ?? id}
         coverUrl={detail?.coverUrl}
         type={detail?.type}
+        genres={detail?.genres}
         chapterNumber={sorted[currentIndex]?.chapterNumber ?? 0}
         chapterSlug={chapter}
       />

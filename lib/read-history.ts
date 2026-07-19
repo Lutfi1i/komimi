@@ -4,6 +4,7 @@ export interface ReadHistoryEntry {
   title: string;
   coverUrl?: string;
   type?: string;
+  genres?: string[];
   lastChapterNumber: number;
   lastChapterSlug: string;
   readAt: number;
@@ -40,6 +41,7 @@ export function markChapterRead(params: {
   title: string;
   coverUrl?: string;
   type?: string;
+  genres?: string[];
   chapterNumber: number;
   chapterSlug: string;
 }) {
@@ -57,6 +59,7 @@ export function markChapterRead(params: {
     title: params.title,
     coverUrl: params.coverUrl,
     type: params.type,
+    genres: params.genres,
     lastChapterNumber: params.chapterNumber,
     lastChapterSlug: params.chapterSlug,
     readAt: Date.now(),

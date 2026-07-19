@@ -50,14 +50,20 @@ export default function CategoriesPage() {
           setTotalPages(res.totalPages);
         } else {
           // Generate a large set of mock mangas if API returns empty
-          const mock = getMockMangas(120);
+          let mock = getMockMangas(120);
+          if (selectedType) {
+            mock = mock.map((m) => ({ ...m, type: selectedType as any }));
+          }
           setFilteredMangas(mock.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
           setTotalItems(mock.length);
           setTotalPages(Math.ceil(mock.length / itemsPerPage));
         }
       } catch (err) {
         console.error("Error loading categories data:", err);
-        const mock = getMockMangas(120);
+        let mock = getMockMangas(120);
+        if (selectedType) {
+          mock = mock.map((m) => ({ ...m, type: selectedType as any }));
+        }
         setFilteredMangas(mock.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
         setTotalItems(mock.length);
         setTotalPages(Math.ceil(mock.length / itemsPerPage));

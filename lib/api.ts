@@ -391,6 +391,9 @@ export const fetchGenreMangaPaged = cache(async (
       if (!manga.genre && slug !== "all") {
         manga.genre = slug;
       }
+      if (type && ['Manga', 'Manhwa', 'Manhua'].includes(type)) {
+        manga.type = type as any;
+      }
       return manga;
     });
     const hasNext = data.length >= 20;
@@ -455,6 +458,9 @@ export const fetchGenreManga = cache(async (slug: string, type?: string): Promis
       const manga = toManga(t, i);
       if (!manga.genre && slug !== "all") {
         manga.genre = slug;
+      }
+      if (type && ['Manga', 'Manhwa', 'Manhua'].includes(type)) {
+        manga.type = type as any;
       }
       return manga;
     });

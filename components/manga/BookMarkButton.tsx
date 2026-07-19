@@ -11,6 +11,7 @@ interface BookmarkButtonProps {
   coverUrl?: string;
   type?: string;
   genre?: string;
+  genres?: string[];
 }
 
 export function BookmarkButton({
@@ -20,6 +21,7 @@ export function BookmarkButton({
   coverUrl,
   type,
   genre,
+  genres,
 }: BookmarkButtonProps) {
   const [bookmarked, setBookmarked] = useState(false);
 
@@ -30,7 +32,7 @@ export function BookmarkButton({
   }, [comicId]);
 
   const handleClick = () => {
-    const next = toggleBookmark({ comicId, slug, title, coverUrl, type, genre });
+    const next = toggleBookmark({ comicId, slug, title, coverUrl, type, genre, genres });
     setBookmarked(next);
   };
 
