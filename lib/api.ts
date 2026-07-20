@@ -1,9 +1,10 @@
 import { cache } from "react";
 import type { Manga, RankedManga, RecentManga, MangaDetail, ChapterInfo } from "@/types/manga";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_KUMIMI_API_URL?.replace(/\/$/, "") ||
-  "http://localhost:4000";
+const isServer = typeof window === "undefined";
+const API_BASE = isServer
+  ? (process.env.NEXT_PUBLIC_KUMIMI_API_URL?.replace(/\/$/, "") || "http://localhost:4000")
+  : "";
 
 interface LiveTitle {
   title: string;
