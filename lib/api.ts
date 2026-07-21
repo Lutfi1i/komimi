@@ -251,19 +251,17 @@ export const fetchMangaDetail = cache(async (slug: string, originalSlug?: string
 
         fetchWithTimeout(`${API_BASE}/api/manga/${slug}/view`, { method: "POST" }).catch(() => {});
 
-        if (chapters.length > 0) {
-          return {
-            title: m.title,
-            coverUrl: m.coverUrl || m.cover_url || undefined,
-            synopsis: m.synopsis ?? "",
-            genres: m.genres ?? [],
-            status: m.status?.toLowerCase() === "completed" ? "completed" : "ongoing",
-            type: (m.type ?? "Manga") as MangaDetail["type"],
-            slug: originalSlug || slug,
-            chapters,
-            author: m.author ?? undefined,
-          };
-        }
+        return {
+          title: m.title,
+          coverUrl: m.coverUrl || m.cover_url || undefined,
+          synopsis: m.synopsis ?? "",
+          genres: m.genres ?? [],
+          status: m.status?.toLowerCase() === "completed" ? "completed" : "ongoing",
+          type: (m.type ?? "Manga") as MangaDetail["type"],
+          slug: originalSlug || slug,
+          chapters,
+          author: m.author ?? undefined,
+        };
       }
     } catch (err) {
       console.error("fetchMangaDetail DB error:", err);
